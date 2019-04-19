@@ -46,7 +46,9 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "lint": "eslint ./src",
+    "fix": "./node_modules/.bin/eslint --fix 'src/**/*' --quiet"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
@@ -71,6 +73,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.4",
+    "eslint-plugin-typescript": "^0.14.0",
     "prettier": "^1.17.0",
     "tslint-config-airbnb": "^5.11.1",
     "typescript": "^3.4.4"
@@ -124,5 +127,13 @@
     "presets": [
       "react-app"
     ]
+  },
+  "pre-commit": [
+    "fix"
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
