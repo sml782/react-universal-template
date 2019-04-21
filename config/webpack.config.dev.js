@@ -1,19 +1,17 @@
-
-
-const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const getClientEnvironment = require('./env');
 const paths = require('./paths');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-// 多进程压缩css
-const cssnano = require('cssnano');
+
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
@@ -29,6 +27,7 @@ const env = getClientEnvironment(publicUrl);
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
 module.exports = {
+  mode: 'development',
   // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
   // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
   devtool: 'cheap-module-source-map',
@@ -98,7 +97,7 @@ module.exports = {
       '.jsx',
     ],
     alias: {
-      
+
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',
@@ -122,9 +121,20 @@ module.exports = {
 
       {
         test: /\.(js|jsx|mjs)$/,
-        loader: require.resolve('source-map-loader'),
         enforce: 'pre',
         include: paths.appSrc,
+        use: [
+          {
+            loader: require.resolve('babel-loader'),
+          },
+          {
+            loader: require.resolve('eslint-loader'),
+            options: {
+              formatter: eslintFormatter,
+              eslintPath: require.resolve('eslint'),
+            }
+          },
+        ]
       },
       {
         // "oneOf" will traverse all following loaders until one will
@@ -145,11 +155,18 @@ module.exports = {
           {
             test: /\.(js|jsx|mjs)$/,
             include: paths.appSrc,
-            loader: require.resolve('babel-loader'),
-            options: {
-              
-              compact: true,
-            },
+            use: [
+              {
+                loader: require.resolve('babel-loader'),
+              },
+              {
+                loader: require.resolve('eslint-loader'),
+                options: {
+                  formatter: eslintFormatter,
+                  eslintPath: require.resolve('eslint'),
+                }
+              },
+            ]
           },
 
           // Compile .tsx?
@@ -157,6 +174,9 @@ module.exports = {
             test: /\.(ts|tsx)$/,
             include: paths.appSrc,
             use: [
+              {
+                loader: 'babel-loader'
+              },
               {
                 loader: require.resolve('ts-loader'),
                 options: {
@@ -172,9 +192,15 @@ module.exports = {
           // In production, we use a plugin to extract that CSS to a file, but
           // in development "style" loader enables hot editing of CSS.
           {
-            test: /\.css$/,
+            test: /\.(css|less)$/,
             use: [
               require.resolve('style-loader'),
+              // {
+              //   loader: MiniCssExtractPlugin.loader,
+              //   options: {
+              //     hmr: process.env.NODE_ENV === 'development',
+              //   },
+              // },
               {
                 loader: require.resolve('css-loader'),
                 options: {
@@ -183,29 +209,13 @@ module.exports = {
               },
               {
                 loader: require.resolve('postcss-loader'),
-                options: {
-                  // Necessary for external CSS imports to work
-                  // https://github.com/facebookincubator/create-react-app/issues/2677
-                  ident: 'postcss',
-                  plugins: () => [
-                    require('postcss-flexbugs-fixes'),
-                    autoprefixer({
-                      browsers: [
-                        '>1%',
-                        'last 4 versions',
-                        'Firefox ESR',
-                        'not ie < 9', // React doesn't support IE8 anyway
-                      ],
-                      flexbox: 'no-2009',
-                    }),
-                    cssnano({
-                      preset: 'default',
-                      autoprefixer: false,
-                      'postcss-zindex': false
-                    })
-                  ],
-                },
               },
+              {
+                loader: require.resolve('less-loader'),
+                options: {
+                  javascriptEnabled: true
+                }
+              }
             ],
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
@@ -235,12 +245,12 @@ module.exports = {
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     // In development, this will be an empty string.
-    new InterpolateHtmlPlugin(env.raw),
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
       template: paths.appHtml,
     }),
+    new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin(),
     // Makes some environment variables available to the JS code, for example:
