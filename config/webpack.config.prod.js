@@ -12,6 +12,7 @@ const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -28,6 +29,27 @@ const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
+
+// 分析
+const Analysis = process.env.Analysis;
+
+// extra plugin
+const extraPlugins = [];
+// 分析插件
+if (Analysis) {
+  extraPlugins.push(new BundleAnalyzerPlugin({
+    /*
+     * server - 服务模式，不生成文件
+     * static - 生成html等文件
+     * disabled - (generateStatsFile: true) 时 会生成JSON文件
+     */
+    analyzerMode: 'server',
+    analyzerHost: '127.0.0.1',
+    analyzerPort: 8888,
+    // 自动默认浏览器打开
+    openAnalyzer: true
+  }));
+}
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -46,6 +68,7 @@ const miniCssExtractPluginOptions = shouldUseRelativeAssetPaths
   : {};
 
 const vendorPkg = [
+  'antd',
   'react',
   'react-dom',
   // 'redux',
@@ -415,6 +438,7 @@ module.exports = {
       tsconfig: paths.appTsProdConfig,
       tslint: paths.appTsLint,
     }),
+    ...extraPlugins
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.

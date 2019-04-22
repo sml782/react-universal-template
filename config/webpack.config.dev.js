@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
@@ -11,6 +10,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const getClientEnvironment = require('./env');
 const paths = require('./paths');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -22,6 +22,26 @@ const publicPath = '/';
 const publicUrl = '';
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
+
+const Analysis = process.env.Analysis;
+
+// extra plugin
+const extraPlugins = [];
+// 分析插件
+if (Analysis) {
+  extraPlugins.push(new BundleAnalyzerPlugin({
+    /*
+     * server - 服务模式，不生成文件
+     * static - 生成html等文件
+     * disabled - (generateStatsFile: true) 时 会生成JSON文件
+     */
+    analyzerMode: 'server',
+    analyzerHost: '127.0.0.1',
+    analyzerPort: 8888,
+    // 自动默认浏览器打开
+    openAnalyzer: true
+  }));
+}
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -280,6 +300,7 @@ module.exports = {
       tsconfig: paths.appTsConfig,
       tslint: paths.appTsLint,
     }),
+    ...extraPlugins
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
