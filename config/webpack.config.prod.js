@@ -45,6 +45,17 @@ const miniCssExtractPluginOptions = shouldUseRelativeAssetPaths
     { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
 
+const vendorPkg = [
+  'react',
+  'react-dom',
+  // 'redux',
+  // 'redux-thunk',
+  // 'react-redux',
+  // 'react-router-dom',
+  // 'react-router-redux',
+  // 'react-loadable',
+];
+
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
@@ -56,7 +67,10 @@ module.exports = {
   // You can exclude the *.map files from the build during deployment.
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve('./polyfills'), paths.appIndexJs],
+  entry: {
+    vender: vendorPkg,
+    index: [require.resolve('./polyfills'), paths.appIndexJs]
+  },
   output: {
     // The build folder.
     path: paths.appBuild,
@@ -115,6 +129,10 @@ module.exports = {
       new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
       new TsconfigPathsPlugin({ configFile: paths.appTsProdConfig }),
     ],
+  },
+  externals: {
+    'react': 'React',
+    'react-dom': 'ReactDOM',
   },
   module: {
     strictExportPresence: true,
@@ -241,13 +259,26 @@ module.exports = {
       name: true,
       // 自动生成文件名的连接符
       automaticNameDelimiter: '~',
+      // 缓存组
       cacheGroups: {
-        vendor: {
-          name: 'vendor',
+        // 禁用默认
+        default: false,
+        // react 单独拿出去
+        // reactBase: {
+        //   name: 'react_base',
+        //   test: (module) => {
+        //     return /react|react-dom|prop-types/.test(module.context);
+        //   },
+        //   chunks: 'initial',
+        //   priority: 10,
+        // },
+        common: {
+          name: 'common',
           chunks: 'initial',
-          priority: -10,
+          priority: 2,
           reuseExistingChunk: false,
-          test: /node_modules\/(.*)\.js/
+          test: /[\\/]node_modules[\\/]/,
+          minChunks: 1,
         },
         styles: {
           name: true,

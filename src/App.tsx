@@ -1,5 +1,5 @@
 import * as React from 'react';
-// import { Button } from 'antd';
+import { Button } from 'antd';
 // import 'antd/dist/antd.css';
 import './App.css';
 
@@ -16,7 +16,7 @@ class App extends React.Component {
         <p className="App-intro">
           To get started, edit <code>src/App.tsx</code> and save to reload.
         </p>
-        {/* <Button>Delete</Button> */}
+        <Button>Delete</Button>
       </div>
     );
   }
