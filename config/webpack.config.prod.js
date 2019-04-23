@@ -1,4 +1,5 @@
 const path = require('path');
+const chalk = require('chalk');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 // MiniCssExtractPlugin 替换 ExtractTextPlugin
@@ -13,6 +14,7 @@ const getClientEnvironment = require('./env');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -68,7 +70,7 @@ const miniCssExtractPluginOptions = shouldUseRelativeAssetPaths
   : {};
 
 const vendorPkg = [
-  'antd',
+  // 'antd',
   'react',
   'react-dom',
   // 'redux',
@@ -168,6 +170,7 @@ module.exports = {
         loader: require.resolve('source-map-loader'),
         enforce: 'pre',
         include: paths.appSrc,
+        exclude: /node_modules/,
       },
       {
         // "oneOf" will traverse all following loaders until one will
@@ -179,6 +182,7 @@ module.exports = {
           {
             test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
             loader: require.resolve('url-loader'),
+            exclude: /node_modules/,
             options: {
               limit: 10000,
               name: 'static/media/[name].[hash:8].[ext]',
@@ -187,12 +191,14 @@ module.exports = {
           {
             test: /\.(js|jsx|mjs)$/,
             include: paths.appSrc,
+            exclude: /node_modules/,
             loader: require.resolve('babel-loader')
           },
           // Compile .tsx?
           {
             test: /\.(ts|tsx)$/,
             include: paths.appSrc,
+            exclude: /node_modules/,
             use: [
               {
                 loader: require.resolve('ts-loader'),
@@ -218,6 +224,7 @@ module.exports = {
           // in the main CSS file.
           {
             test: /\.(css|less)$/,
+            exclude: /node_modules/,
             use: [
               {
                 loader: MiniCssExtractPlugin.loader,
@@ -252,7 +259,7 @@ module.exports = {
             // it's runtime that would otherwise processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders.
-            exclude: [/\.(js|jsx|mjs)$/, /\.html$/, /\.json$/],
+            exclude: [/\.(js|jsx|mjs)$/, /\.html$/, /\.json$/, /node_modules/],
             options: {
               name: 'static/media/[name].[hash:8].[ext]',
             },
@@ -298,10 +305,18 @@ module.exports = {
         common: {
           name: 'common',
           chunks: 'initial',
-          priority: 2,
+          priority: 10,
           reuseExistingChunk: false,
           test: /[\\/]node_modules[\\/]/,
-          minChunks: 1,
+          // test: (module, chunks) => {
+          //   const isant = /ant/.test(module.context);
+          //   if (isant) {
+          //     // console.log(module.context);
+          //   }
+          //   // console.log(/ant/.test(module.context));
+          //   return (/[\\/]node_modules[\\/]/.test(module.context));
+          // },
+          // minChunks: 2,
         },
         styles: {
           name: true,
@@ -438,6 +453,21 @@ module.exports = {
       tsconfig: paths.appTsProdConfig,
       tslint: paths.appTsLint,
     }),
+    /** 进度插件 start **/
+    new ProgressBarPlugin({
+      format: '  build [:bar] ' + chalk.green.bold(':percent') + ' (:elapsed seconds)',
+      clear: false
+    }),
+    // new webpack.ProgressPlugin((percentage, msg) => {
+    //   const stream = process.stderr;
+    //   console.log(percentage);
+    //   if (stream.isTTY && percentage < 0.71) {
+    //     stream.cursorTo(0);
+    //     stream.write(`📦   ${msg}`);
+    //     stream.clearLine(1);
+    //   }
+    // }),
+    /** 进度插件 end **/
     ...extraPlugins
   ],
   // Some libraries import Node modules but don't use them in the browser.
