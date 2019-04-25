@@ -201,6 +201,9 @@ module.exports = {
             exclude: /node_modules/,
             use: [
               {
+                loader: require.resolve('babel-loader')
+              },
+              {
                 loader: require.resolve('ts-loader'),
                 options: {
                   // disable type checker - we will use it in fork plugin
@@ -275,7 +278,7 @@ module.exports = {
     noEmitOnErrors: true,
     // 包含所有入口文件的
     runtimeChunk: {
-      name: 'all'
+      name: 'runtime'
     },
     // 生成chunk并缓存
     splitChunks: {

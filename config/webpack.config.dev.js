@@ -141,20 +141,10 @@ module.exports = {
 
       {
         test: /\.(js|jsx|mjs)$/,
+        loader: require.resolve('source-map-loader'),
         enforce: 'pre',
         include: paths.appSrc,
-        use: [
-          {
-            loader: require.resolve('babel-loader'),
-          },
-          {
-            loader: require.resolve('eslint-loader'),
-            options: {
-              formatter: eslintFormatter,
-              eslintPath: require.resolve('eslint'),
-            }
-          },
-        ]
+        exclude: /node_modules/,
       },
       {
         // "oneOf" will traverse all following loaders until one will
@@ -196,6 +186,13 @@ module.exports = {
             use: [
               {
                 loader: 'babel-loader'
+              },
+              {
+                loader: require.resolve('eslint-loader'),
+                options: {
+                  formatter: eslintFormatter,
+                  eslintPath: require.resolve('eslint'),
+                }
               },
               {
                 loader: require.resolve('ts-loader'),
