@@ -188,18 +188,19 @@ module.exports = {
                 loader: 'babel-loader'
               },
               {
-                loader: require.resolve('eslint-loader'),
-                options: {
-                  formatter: eslintFormatter,
-                  eslintPath: require.resolve('eslint'),
-                }
-              },
-              {
                 loader: require.resolve('ts-loader'),
                 options: {
                   // disable type checker - we will use it in fork plugin
                   transpileOnly: true,
                 },
+              },
+              {
+                loader: require.resolve('eslint-loader'),
+                options: {
+                  formatter: eslintFormatter,
+                  eslintPath: require.resolve('eslint'),
+                  useEslintrc: true
+                }
               },
             ],
           },
