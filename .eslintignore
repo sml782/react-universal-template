@@ -4,3 +4,4 @@ dist/
 config/
 src/registerServiceWorker.ts
 scripts/
+test/
