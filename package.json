@@ -17,8 +17,9 @@
     "build": "node scripts/env.js --prod",
     "build:ana": "node scripts/env.js --prod --Analysis",
     "test": "node scripts/test.js --env=jsdom",
-    "lint": "eslint ./src",
-    "fix": "./node_modules/.bin/eslint --fix 'src/**/*' --quiet"
+    "lint:ts": "./node_modules/.bin/tslint -c tslint.json -p . ",
+    "lint:ts:fix": "npm run lint:ts -- --fix",
+    "lint:js:fix": "./node_modules/.bin/eslint src/**/*.ts --rule 'no-debugger: error' --rule 'no-console:error' --fix --quiet"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
@@ -60,9 +61,11 @@
     "fork-ts-checker-webpack-plugin": "^1.0.4",
     "fs-extra": "3.0.1",
     "html-webpack-plugin": "^4.0.0-beta.5",
+    "husky": "^2.1.0",
     "jest": "20.0.4",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
+    "lint-staged": "^8.1.5",
     "mini-css-extract-plugin": "^0.6.0",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "^3.0.0",
@@ -135,9 +138,17 @@
       }
     }
   },
-  "pre-commit": [
-    "fix"
-  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "npm run lint:js:fix",
+      "git add"
+    ]
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
