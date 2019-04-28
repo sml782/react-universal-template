@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button } from 'antd';
 import logoSvg from './logo.svg';
 // import 'antd/dist/antd.css';
-import './App.css';
+import './App.css'
 
 class App extends React.Component {
   public render() {
