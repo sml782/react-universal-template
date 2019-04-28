@@ -144,7 +144,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.tsx": [
+    "src/**/*": [
       "npm run lint:js:fix",
       "git add"
     ]
