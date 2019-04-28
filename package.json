@@ -19,7 +19,7 @@
     "test": "node scripts/test.js --env=jsdom",
     "lint:ts": "./node_modules/.bin/tslint -c tslint.json -p . ",
     "lint:ts:fix": "npm run lint:ts -- --fix",
-    "lint:es:fix": "./node_modules/.bin/eslint src/**/*.tsx --ext 'ts,tsx' --rule 'no-debugger: error' --rule 'no-console:error' --fix --quiet"
+    "lint:es:fix": "./node_modules/.bin/eslint \"src/**/*.@(ts|tsx)\" --ext tsx --rule 'no-debugger: error' --rule 'no-console:error' --fix --quiet"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
