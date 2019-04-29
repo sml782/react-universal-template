@@ -2,6 +2,6 @@ node_modules/
 build/
 dist/
 config/
-src/sw/registerServiceWorker.ts
+src/sw/serviceWorker.ts
 scripts/
 test/
